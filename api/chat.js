@@ -1,23 +1,15 @@
 export default async function handler(req, res) {
-  // --- CORS (needed for browser calls) ---
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
-  // Preflight request
-  if (req.method === "OPTIONS") {
-    return res.status(200).end();
-  }
-
-  // Only allow POST
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
-  }
+  if (req.method === "OPTIONS") return res.status(200).end();
+  if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 
   try {
     const { message } = req.body || {};
-
     if (!message || typeof message !== "string") {
+      console.error("Invalid body:", req.body);
       return res.status(400).json({ error: "Missing or invalid `message`" });
     }
 
@@ -25,11 +17,15 @@ export default async function handler(req, res) {
     const VAPI_ASSISTANT_ID = process.env.VAPI_ASSISTANT_ID;
 
     if (!VAPI_PRIVATE_KEY) {
+      console.error("Missing env: VAPI_PRIVATE_KEY");
       return res.status(500).json({ error: "Missing VAPI_PRIVATE_KEY env var" });
     }
     if (!VAPI_ASSISTANT_ID) {
+      console.error("Missing env: VAPI_ASSISTANT_ID");
       return res.status(500).json({ error: "Missing VAPI_ASSISTANT_ID env var" });
     }
+
+    const payload = { assistantId: VAPI_ASSISTANT_ID, input: message, stream: false };
 
     const vapiResp = await fetch("https://api.vapi.ai/chat", {
       method: "POST",
@@ -37,33 +33,29 @@ export default async function handler(req, res) {
         Authorization: `Bearer ${VAPI_PRIVATE_KEY}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        assistantId: VAPI_ASSISTANT_ID,
-        input: message,
-        stream: false,
-      }),
+      body: JSON.stringify(payload),
     });
 
-    const data = await vapiResp.json();
-
-    if (!vapiResp.ok) {
-      return res.status(vapiResp.status).json({
-        error: "Vapi request failed",
-        details: data,
-      });
+    const text = await vapiResp.text();
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch {
+      console.error("Vapi returned non-JSON:", { status: vapiResp.status, text });
+      return res.status(502).json({ error: "Vapi returned non-JSON response", status: vapiResp.status });
     }
 
-    // Vapi returns: { output: [{ role: "assistant", content: "..." }], ... }
-    const reply =
-      (Array.isArray(data.output) &&
-        data.output.find((m) => m.role === "assistant")?.content) ||
-      "";
+    if (!vapiResp.ok) {
+      console.error("Vapi error:", { status: vapiResp.status, data });
+      return res.status(502).json({ error: "Vapi request failed", status: vapiResp.status, details: data });
+    }
 
-    return res.status(200).json({ reply, raw: data });
+    const reply =
+      (Array.isArray(data.output) && data.output.find((m) => m.role === "assistant")?.content) || "";
+
+    return res.status(200).json({ reply });
   } catch (err) {
-    return res.status(500).json({
-      error: "Server error",
-      details: String(err?.message || err),
-    });
+    console.error("Server exception:", err);
+    return res.status(500).json({ error: "Server error", details: String(err?.message || err) });
   }
 }
