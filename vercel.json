@@ -1,7 +1,7 @@
 {
   "functions": {
     "api/chat.js": {
-      "runtime": "nodejs20.x"
+      "runtime": "vercel-nodejs@5.0.0"
     }
   }
 }
