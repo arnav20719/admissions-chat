@@ -6,7 +6,7 @@
     <title>Admissions Chat</title>
     <style>
       body { font-family: system-ui, Arial; max-width: 800px; margin: 40px auto; padding: 16px; }
-      #box { border: 1px solid #ddd; border-radius: 12px; padding: 12px; min-height: 360px; }
+      #box { border: 1px solid #ddd; border-radius: 12px; padding: 12px; min-height: 360px; overflow:auto; }
       .row { margin: 10px 0; }
       .label { font-weight: 700; }
       #bar { display:flex; gap:8px; margin-top: 12px; }
@@ -42,11 +42,41 @@
       async function send() {
         const text = msg.value.trim();
         if (!text) return;
+
         msg.value = "";
         add("Student", text);
+
+        // show typing
         add("Assistant", "<span class='muted'>Typing…</span>");
-        box.lastChild.remove();
-        add("Assistant", "Chat backend connect होने के बाद reply आएगा (next steps में).");
+        const typingEl = box.lastChild;
+
+        try {
+          const resp = await fetch("/api/chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              message: text,
+              previousChatId: window.previousChatId || null
+            })
+          });
+
+          const data = await resp.json();
+
+          // remove typing
+          typingEl.remove();
+
+          if (!resp.ok) {
+            add("Assistant", data?.error || "Error");
+            return;
+          }
+
+          window.previousChatId = data.id;
+          const assistantText = data.output?.[0]?.content || "";
+          add("Assistant", assistantText);
+        } catch (e) {
+          typingEl.remove();
+          add("Assistant", "Network error. Please try again.");
+        }
       }
 
       sendBtn.onclick = send;
