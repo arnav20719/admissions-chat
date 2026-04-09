@@ -1,0 +1,58 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Admissions Chat</title>
+    <style>
+      body { font-family: system-ui, Arial; max-width: 800px; margin: 40px auto; padding: 16px; }
+      #box { border: 1px solid #ddd; border-radius: 12px; padding: 12px; min-height: 360px; }
+      .row { margin: 10px 0; }
+      .label { font-weight: 700; }
+      #bar { display:flex; gap:8px; margin-top: 12px; }
+      input { flex:1; padding: 12px; border-radius: 10px; border:1px solid #ddd; }
+      button { padding: 12px 16px; border-radius: 10px; }
+      .muted { color:#666; }
+    </style>
+  </head>
+  <body>
+    <h2>Admissions Chat (Hindi + English)</h2>
+    <div id="box"></div>
+
+    <div id="bar">
+      <input id="msg" placeholder="Type your question…" />
+      <button id="send">Send</button>
+    </div>
+
+    <p class="muted">Note: This chat is powered by Vapi.</p>
+
+    <script>
+      const box = document.getElementById("box");
+      const msg = document.getElementById("msg");
+      const sendBtn = document.getElementById("send");
+
+      function add(role, text) {
+        const div = document.createElement("div");
+        div.className = "row";
+        div.innerHTML = `<span class="label">${role}:</span> ${text}`;
+        box.appendChild(div);
+        box.scrollTop = box.scrollHeight;
+      }
+
+      async function send() {
+        const text = msg.value.trim();
+        if (!text) return;
+        msg.value = "";
+        add("Student", text);
+        add("Assistant", "<span class='muted'>Typing…</span>");
+        box.lastChild.remove();
+        add("Assistant", "Chat backend connect होने के बाद reply आएगा (next steps में).");
+      }
+
+      sendBtn.onclick = send;
+      msg.addEventListener("keydown", (e) => { if (e.key === "Enter") send(); });
+
+      add("Assistant", "Hi! Ask me anything about admissions. (हिंदी/English दोनों चलेगा)");
+    </script>
+  </body>
+</html>
