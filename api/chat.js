@@ -37,17 +37,22 @@ export default async function handler(req, res) {
     });
 
     const text = await vapiResp.text();
+
+    // If Vapi returns non-JSON (HTML/plain text), surface it back to the client for debugging.
     let data;
     try {
       data = JSON.parse(text);
     } catch {
-      console.error("Vapi returned non-JSON:", { status: vapiResp.status, text });
-      return res.status(502).json({ error: "Vapi returned non-JSON response", status: vapiResp.status });
+      return res.status(200).json({
+        reply: `DEBUG: Vapi returned non-JSON. status=${vapiResp.status}. text=${text.slice(0, 300)}`,
+      });
     }
 
+    // If Vapi returns JSON but not OK, surface details back to the client for debugging.
     if (!vapiResp.ok) {
-      console.error("Vapi error:", { status: vapiResp.status, data });
-      return res.status(502).json({ error: "Vapi request failed", status: vapiResp.status, details: data });
+      return res.status(200).json({
+        reply: `DEBUG: Vapi request failed. status=${vapiResp.status}. details=${JSON.stringify(data).slice(0, 300)}`,
+      });
     }
 
     const reply =
@@ -55,7 +60,8 @@ export default async function handler(req, res) {
 
     return res.status(200).json({ reply });
   } catch (err) {
-    console.error("Server exception:", err);
-    return res.status(500).json({ error: "Server error", details: String(err?.message || err) });
+    return res.status(200).json({
+      reply: `DEBUG: Server exception: ${String(err?.message || err).slice(0, 300)}`,
+    });
   }
 }
