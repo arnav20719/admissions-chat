@@ -54,10 +54,7 @@
           const resp = await fetch("/api/chat", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              message: text,
-              previousChatId: window.previousChatId || null
-            })
+            body: JSON.stringify({ message: text })
           });
 
           const data = await resp.json();
@@ -70,8 +67,8 @@
             return;
           }
 
-          window.previousChatId = data.id;
-          const assistantText = data.output?.[0]?.content || "";
+          // Our /api/chat returns { reply: "..." }
+          const assistantText = data.reply || "";
           add("Assistant", assistantText);
         } catch (e) {
           typingEl.remove();
