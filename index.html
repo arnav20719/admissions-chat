@@ -54,7 +54,10 @@
           const resp = await fetch("/api/chat", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ message: text })
+            body: JSON.stringify({
+              message: text,
+              sessionId: localStorage.getItem("admissions_session_id") || null
+            })
           });
 
           const data = await resp.json();
@@ -67,7 +70,11 @@
             return;
           }
 
-          // Our /api/chat returns { reply: "..." }
+          // store sessionId for stable context
+          if (data.sessionId) {
+            localStorage.setItem("admissions_session_id", data.sessionId);
+          }
+
           const assistantText = data.reply || "";
           add("Assistant", assistantText);
         } catch (e) {
