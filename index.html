@@ -164,7 +164,6 @@
         text-align:center;
       }
 
-      /* Typing dots */
       .dots{ display:inline-flex; gap:4px; align-items:center; }
       .dot{
         width:6px; height:6px;
@@ -213,7 +212,9 @@
             <textarea id="msg" placeholder="Type your message… (Enter to send, Shift+Enter for new line)"></textarea>
             <button id="send">Send</button>
           </div>
-          <div class="footerNote">Tip: New chat start करने के लिए localStorage से <code>admissions_session_id</code> delete करें.</div>
+          <div class="footerNote">
+            New chat = page refresh. (Session is not saved in localStorage.)
+          </div>
         </div>
       </div>
     </div>
@@ -222,6 +223,9 @@
       const box = document.getElementById("box");
       const msg = document.getElementById("msg");
       const sendBtn = document.getElementById("send");
+
+      // ✅ New session per page load, but memory is kept during the chat
+      let currentSessionId = null;
 
       function nowTime() {
         const d = new Date();
@@ -282,7 +286,7 @@
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               message: text,
-              sessionId: localStorage.getItem("admissions_session_id") || null
+              sessionId: currentSessionId
             })
           });
 
@@ -290,26 +294,20 @@
           typingEl.remove();
           sendBtn.disabled = false;
 
+          // If backend created a session, store it in memory (NOT localStorage)
+          if (data?.sessionId) currentSessionId = data.sessionId;
+
           if (!resp.ok) {
             addBubble("assistant", escapeHtml(data?.error || "Error"));
             return;
           }
 
-          if (data.sessionId) {
-            localStorage.setItem("admissions_session_id", data.sessionId);
-          }
-
-          // Show ALL assistant messages (or fallback to single)
+          // Show ONLY the final assistant message (clean UI)
           const replies = Array.isArray(data.replies) ? data.replies : [data.reply];
           const clean = replies.filter(Boolean);
 
-          if (!clean.length) {
-            addBubble("assistant", "…");
-          } else {
-            // If you want ONLY the final question, backend already sets reply=last message.
-            // We render only the last one to keep UI clean:
-            addBubble("assistant", escapeHtml(clean[clean.length - 1]));
-          }
+          if (!clean.length) addBubble("assistant", "…");
+          else addBubble("assistant", escapeHtml(clean[clean.length - 1]));
         } catch (e) {
           typingEl.remove();
           sendBtn.disabled = false;
@@ -317,7 +315,6 @@
         }
       }
 
-      // Autosize textarea
       msg.addEventListener("input", () => {
         msg.style.height = "auto";
         msg.style.height = Math.min(msg.scrollHeight, 120) + "px";
@@ -331,7 +328,6 @@
         }
       });
 
-      // Initial message
       addBubble("assistant", "नमस्कार! मैं रौशनी हूँ। शुरू करने के लिए अपना पूरा नाम बताइए।");
     </script>
   </body>
