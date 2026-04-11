@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Admissions Chat</title>
+    <title>Admissions Help Desk • Chat with Raushni</title>
     <style>
       :root{
         --bg: #f6f7fb;
@@ -34,45 +34,23 @@
         color: var(--text);
       }
 
-      .wrap{
-        max-width: 920px;
-        margin: 28px auto;
-        padding: 16px;
-      }
+      .wrap{ max-width: 920px; margin: 28px auto; padding: 16px; }
 
       .header{
-        display:flex;
-        align-items:center;
-        justify-content:space-between;
-        gap: 12px;
-        margin-bottom: 14px;
+        display:flex; align-items:center; justify-content:space-between;
+        gap: 12px; margin-bottom: 14px;
       }
 
-      .title{
-        display:flex;
-        flex-direction:column;
-        gap:4px;
-      }
-
-      .title h1{
-        margin:0;
-        font-size: 20px;
-        letter-spacing: .2px;
-      }
-
-      .title .sub{
-        color: var(--muted);
-        font-size: 13px;
-      }
+      .title{ display:flex; flex-direction:column; gap:4px; }
+      .title h1{ margin:0; font-size: 20px; letter-spacing: .2px; }
+      .title .sub{ color: var(--muted); font-size: 13px; }
 
       .badge{
-        padding: 8px 10px;
-        border-radius: 999px;
+        padding: 8px 10px; border-radius: 999px;
         background: rgba(79,70,229,.10);
         color: #3730a3;
         border: 1px solid rgba(79,70,229,.20);
-        font-size: 12px;
-        white-space: nowrap;
+        font-size: 12px; white-space: nowrap;
       }
 
       .card{
@@ -86,34 +64,20 @@
       .topbar{
         padding: 14px 16px;
         border-bottom: 1px solid var(--border);
-        display:flex;
-        align-items:center;
-        gap: 12px;
+        display:flex; align-items:center; gap: 12px;
         background: linear-gradient(180deg, rgba(79,70,229,.08), transparent);
       }
 
       .avatar{
-        width: 36px;
-        height: 36px;
-        border-radius: 12px;
+        width: 36px; height: 36px; border-radius: 12px;
         background: linear-gradient(135deg, rgba(79,70,229,.95), rgba(6,182,212,.9));
-        display:grid;
-        place-items:center;
-        color:#fff;
-        font-weight: 800;
-        letter-spacing: .5px;
+        display:grid; place-items:center;
+        color:#fff; font-weight: 800; letter-spacing: .5px;
       }
 
-      .topbar .meta{
-        display:flex;
-        flex-direction:column;
-        line-height: 1.2;
-      }
+      .topbar .meta{ display:flex; flex-direction:column; line-height: 1.2; }
       .topbar .meta .name{ font-weight: 700; }
-      .topbar .meta .status{
-        font-size: 12px;
-        color: var(--muted);
-      }
+      .topbar .meta .status{ font-size: 12px; color: var(--muted); }
 
       #box{
         height: min(64vh, 560px);
@@ -122,10 +86,7 @@
         background: linear-gradient(180deg, rgba(17,24,39,.02), transparent 35%);
       }
 
-      .row{
-        display:flex;
-        margin: 10px 0;
-      }
+      .row{ display:flex; margin: 10px 0; }
       .row.assistant{ justify-content:flex-start; }
       .row.user{ justify-content:flex-end; }
 
@@ -154,13 +115,7 @@
         border-top-right-radius: 10px;
       }
 
-      .time{
-        margin-top: 6px;
-        font-size: 11px;
-        color: var(--muted);
-        opacity: .9;
-        padding: 0 6px;
-      }
+      .time{ margin-top: 6px; font-size: 11px; color: var(--muted); opacity: .9; padding: 0 6px; }
 
       .composer{
         padding: 12px;
@@ -168,11 +123,7 @@
         background: #fff;
       }
 
-      .bar{
-        display:flex;
-        gap:10px;
-        align-items:flex-end;
-      }
+      .bar{ display:flex; gap:10px; align-items:flex-end; }
 
       textarea{
         flex:1;
@@ -204,10 +155,7 @@
         min-width: 92px;
       }
       button:active{ transform: translateY(1px); }
-      button:disabled{
-        opacity: .65;
-        cursor:not-allowed;
-      }
+      button:disabled{ opacity: .65; cursor:not-allowed; }
 
       .footerNote{
         padding: 10px 2px 0;
@@ -217,11 +165,7 @@
       }
 
       /* Typing dots */
-      .dots{
-        display:inline-flex;
-        gap:4px;
-        align-items:center;
-      }
+      .dots{ display:inline-flex; gap:4px; align-items:center; }
       .dot{
         width:6px; height:6px;
         border-radius:999px;
@@ -247,8 +191,8 @@
     <div class="wrap">
       <div class="header">
         <div class="title">
-          <h1>Admissions Chat</h1>
-          <div class="sub">Hindi + English • Fast replies • 상담-like experience</div>
+          <h1>Admissions Help Desk</h1>
+          <div class="sub">Chat with Raushni • Hindi + English • Fast replies</div>
         </div>
         <div class="badge">Powered by Vapi</div>
       </div>
@@ -284,6 +228,13 @@
         return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
       }
 
+      function escapeHtml(s) {
+        return (s || "")
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;");
+      }
+
       function addBubble(kind, text) {
         const row = document.createElement("div");
         row.className = `row ${kind}`;
@@ -303,7 +254,6 @@
         row.appendChild(wrap);
         box.appendChild(row);
         box.scrollTop = box.scrollHeight;
-
         return row;
       }
 
@@ -321,7 +271,7 @@
         msg.value = "";
         msg.style.height = "46px";
 
-        addBubble("user", text.replaceAll("<", "&lt;").replaceAll(">", "&gt;"));
+        addBubble("user", escapeHtml(text));
 
         const typingEl = typingRow();
         sendBtn.disabled = true;
@@ -341,7 +291,7 @@
           sendBtn.disabled = false;
 
           if (!resp.ok) {
-            addBubble("assistant", (data?.error || "Error").replaceAll("<", "&lt;"));
+            addBubble("assistant", escapeHtml(data?.error || "Error"));
             return;
           }
 
@@ -349,8 +299,17 @@
             localStorage.setItem("admissions_session_id", data.sessionId);
           }
 
-          const assistantText = (data.reply || "").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
-          addBubble("assistant", assistantText || "…");
+          // Show ALL assistant messages (or fallback to single)
+          const replies = Array.isArray(data.replies) ? data.replies : [data.reply];
+          const clean = replies.filter(Boolean);
+
+          if (!clean.length) {
+            addBubble("assistant", "…");
+          } else {
+            // If you want ONLY the final question, backend already sets reply=last message.
+            // We render only the last one to keep UI clean:
+            addBubble("assistant", escapeHtml(clean[clean.length - 1]));
+          }
         } catch (e) {
           typingEl.remove();
           sendBtn.disabled = false;
@@ -372,7 +331,7 @@
         }
       });
 
-      // Initial message (UI only)
+      // Initial message
       addBubble("assistant", "नमस्कार! मैं रौशनी हूँ। शुरू करने के लिए अपना पूरा नाम बताइए।");
     </script>
   </body>
