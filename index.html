@@ -3,87 +3,131 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Admissions Help Desk • Chat with Raushni</title>
+    <title>Q&A GPT • Admissions Help Desk</title>
     <style>
       :root{
-        --bg: #f6f7fb;
-        --card: #ffffff;
-        --text: #111827;
-        --muted: #6b7280;
-        --border: rgba(17,24,39,.08);
-        --shadow: 0 10px 30px rgba(17,24,39,.08);
-        --brand1: #4f46e5;
+        --bg: #0b1220;
+        --card: rgba(255,255,255,.06);
+        --card2: rgba(255,255,255,.08);
+        --text: rgba(255,255,255,.92);
+        --muted: rgba(255,255,255,.65);
+        --border: rgba(255,255,255,.10);
+        --shadow: 0 14px 40px rgba(0,0,0,.35);
+
+        --brand1: #7c3aed;
         --brand2: #06b6d4;
 
-        --assistant: #f3f4f6;
-        --assistantText: #111827;
+        --assistant: rgba(255,255,255,.10);
+        --assistantText: rgba(255,255,255,.92);
 
-        --user: linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%);
+        --userBg: linear-gradient(135deg, #7c3aed 0%, #06b6d4 100%);
         --userText: #ffffff;
 
         --radius: 18px;
       }
 
       *{ box-sizing:border-box; }
+      html, body { height: 100%; }
       body{
         margin:0;
         font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
-        background: radial-gradient(1200px 600px at 10% -10%, rgba(79,70,229,.20), transparent 60%),
-                    radial-gradient(900px 500px at 110% 10%, rgba(6,182,212,.16), transparent 55%),
-                    var(--bg);
         color: var(--text);
+        background:
+          radial-gradient(900px 500px at 10% 0%, rgba(124,58,237,.30), transparent 55%),
+          radial-gradient(900px 500px at 100% 10%, rgba(6,182,212,.22), transparent 55%),
+          var(--bg);
       }
 
-      .wrap{ max-width: 920px; margin: 28px auto; padding: 16px; }
+      .page{
+        height: 100%;
+        display:flex;
+        flex-direction:column;
+        max-width: 980px;
+        margin: 0 auto;
+      }
 
       .header{
-        display:flex; align-items:center; justify-content:space-between;
-        gap: 12px; margin-bottom: 14px;
+        padding: 14px 14px 10px;
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        gap: 10px;
       }
 
-      .title{ display:flex; flex-direction:column; gap:4px; }
-      .title h1{ margin:0; font-size: 20px; letter-spacing: .2px; }
-      .title .sub{ color: var(--muted); font-size: 13px; }
+      .title{
+        display:flex;
+        flex-direction:column;
+        gap:4px;
+        min-width: 0;
+      }
+      .title h1{
+        margin:0;
+        font-size: 16px;
+        letter-spacing: .2px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .title .sub{
+        font-size: 12px;
+        color: var(--muted);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
 
-      .badge{
-        padding: 8px 10px; border-radius: 999px;
-        background: rgba(79,70,229,.10);
-        color: #3730a3;
-        border: 1px solid rgba(79,70,229,.20);
-        font-size: 12px; white-space: nowrap;
+      .pill{
+        font-size: 12px;
+        padding: 8px 10px;
+        border-radius: 999px;
+        background: rgba(124,58,237,.18);
+        border: 1px solid rgba(124,58,237,.30);
+        color: rgba(255,255,255,.9);
+        white-space: nowrap;
       }
 
       .card{
-        background: var(--card);
+        flex: 1;
+        margin: 0 12px 12px;
+        border-radius: 18px;
         border: 1px solid var(--border);
-        border-radius: 22px;
+        background: linear-gradient(180deg, var(--card), rgba(255,255,255,.03));
         box-shadow: var(--shadow);
         overflow:hidden;
+        display:flex;
+        flex-direction:column;
+        min-height: 0; /* important for flex scroll */
       }
 
       .topbar{
-        padding: 14px 16px;
+        padding: 12px 12px;
+        display:flex;
+        align-items:center;
+        gap: 10px;
         border-bottom: 1px solid var(--border);
-        display:flex; align-items:center; gap: 12px;
-        background: linear-gradient(180deg, rgba(79,70,229,.08), transparent);
+        background: rgba(255,255,255,.04);
       }
 
       .avatar{
-        width: 36px; height: 36px; border-radius: 12px;
-        background: linear-gradient(135deg, rgba(79,70,229,.95), rgba(6,182,212,.9));
-        display:grid; place-items:center;
-        color:#fff; font-weight: 800; letter-spacing: .5px;
+        width: 34px; height: 34px;
+        border-radius: 12px;
+        display:grid;
+        place-items:center;
+        font-weight: 800;
+        background: linear-gradient(135deg, rgba(124,58,237,.95), rgba(6,182,212,.9));
+        color: #fff;
+        flex: 0 0 auto;
       }
 
-      .topbar .meta{ display:flex; flex-direction:column; line-height: 1.2; }
-      .topbar .meta .name{ font-weight: 700; }
-      .topbar .meta .status{ font-size: 12px; color: var(--muted); }
+      .meta{ line-height: 1.15; min-width: 0; }
+      .meta .name{ font-weight: 750; font-size: 13px; white-space: nowrap; overflow:hidden; text-overflow: ellipsis; }
+      .meta .status{ font-size: 12px; color: var(--muted); }
 
       #box{
-        height: min(64vh, 560px);
+        flex: 1;
         overflow:auto;
-        padding: 18px 16px 10px 16px;
-        background: linear-gradient(180deg, rgba(17,24,39,.02), transparent 35%);
+        padding: 14px 12px;
+        min-height: 0;
       }
 
       .row{ display:flex; margin: 10px 0; }
@@ -91,56 +135,66 @@
       .row.user{ justify-content:flex-end; }
 
       .bubble{
-        max-width: min(78%, 680px);
-        padding: 12px 14px;
+        max-width: 86%;
+        padding: 12px 12px;
         border-radius: var(--radius);
         border: 1px solid var(--border);
-        box-shadow: 0 6px 16px rgba(17,24,39,.06);
+        box-shadow: 0 8px 18px rgba(0,0,0,.20);
         font-size: 14.5px;
         line-height: 1.45;
         word-wrap: break-word;
         white-space: pre-wrap;
       }
-
       .assistant .bubble{
         background: var(--assistant);
         color: var(--assistantText);
         border-top-left-radius: 10px;
       }
-
       .user .bubble{
-        background: var(--user);
+        background: var(--userBg);
         color: var(--userText);
         border: none;
         border-top-right-radius: 10px;
       }
 
-      .time{ margin-top: 6px; font-size: 11px; color: var(--muted); opacity: .9; padding: 0 6px; }
-
-      .composer{
-        padding: 12px;
-        border-top: 1px solid var(--border);
-        background: #fff;
+      .time{
+        margin-top: 6px;
+        font-size: 11px;
+        color: var(--muted);
+        padding: 0 6px;
       }
 
-      .bar{ display:flex; gap:10px; align-items:flex-end; }
+      .composer{
+        padding: 10px;
+        border-top: 1px solid var(--border);
+        background: rgba(10,16,30,.92);
+        backdrop-filter: blur(10px);
+      }
+
+      .bar{
+        display:flex;
+        gap: 10px;
+        align-items:flex-end;
+      }
 
       textarea{
         flex:1;
         resize:none;
         min-height: 46px;
-        max-height: 120px;
+        max-height: 140px;
         padding: 12px 12px;
         border-radius: 14px;
         border: 1px solid var(--border);
         outline: none;
         font-family: inherit;
         font-size: 14.5px;
-        background: #fff;
+        background: rgba(255,255,255,.06);
+        color: var(--text);
       }
+      textarea::placeholder{ color: rgba(255,255,255,.55); }
       textarea:focus{
-        border-color: rgba(79,70,229,.35);
-        box-shadow: 0 0 0 4px rgba(79,70,229,.10);
+        border-color: rgba(6,182,212,.55);
+        box-shadow: 0 0 0 4px rgba(6,182,212,.12);
       }
 
       button{
@@ -148,59 +202,61 @@
         border-radius: 14px;
         border: none;
         cursor:pointer;
-        font-weight: 700;
+        font-weight: 750;
         color: #fff;
         background: linear-gradient(135deg, var(--brand1), var(--brand2));
-        box-shadow: 0 10px 20px rgba(79,70,229,.18);
-        min-width: 92px;
+        box-shadow: 0 12px 22px rgba(124,58,237,.20);
+        min-width: 86px;
       }
-      button:active{ transform: translateY(1px); }
-      button:disabled{ opacity: .65; cursor:not-allowed; }
+      button:disabled{ opacity: .6; cursor:not-allowed; }
 
       .footerNote{
-        padding: 10px 2px 0;
+        margin-top: 8px;
+        text-align:center;
         font-size: 12px;
         color: var(--muted);
-        text-align:center;
       }
 
       .dots{ display:inline-flex; gap:4px; align-items:center; }
       .dot{
-        width:6px; height:6px;
-        border-radius:999px;
-        background: rgba(17,24,39,.55);
+        width:6px; height:6px; border-radius:999px;
+        background: rgba(255,255,255,.70);
         animation: blink 1.2s infinite ease-in-out;
       }
       .dot:nth-child(2){ animation-delay: .15s; }
       .dot:nth-child(3){ animation-delay: .30s; }
       @keyframes blink{
         0%, 80%, 100% { opacity: .25; transform: translateY(0); }
-        40% { opacity: .9; transform: translateY(-2px); }
+        40% { opacity: .95; transform: translateY(-2px); }
       }
 
-      @media (max-width: 640px){
-        .badge{ display:none; }
-        #box{ height: 70vh; }
-        .bubble{ max-width: 88%; }
+      /* Mobile: make it feel like an app */
+      @media (max-width: 520px){
+        .header{ padding: 12px 12px 8px; }
+        .pill{ display:none; }
+        .card{ margin: 0; border-radius: 0; border-left:0; border-right:0; }
+        .bubble{ max-width: 92%; }
+        #box{ padding: 12px 10px; }
+        .composer{ padding: 10px; }
       }
     </style>
   </head>
 
   <body>
-    <div class="wrap">
+    <div class="page">
       <div class="header">
         <div class="title">
           <h1>Admissions Help Desk</h1>
-          <div class="sub">Chat with Raushni • Hindi + English • Fast replies</div>
+          <div class="sub">Chat with Q&A GPT • Fast replies</div>
         </div>
-        <div class="badge">Powered by Vapi</div>
+        <div class="pill">Powered by Vapi</div>
       </div>
 
       <div class="card">
         <div class="topbar">
-          <div class="avatar">R</div>
+          <div class="avatar">Q</div>
           <div class="meta">
-            <div class="name">Raushni • Admissions Counselor</div>
+            <div class="name">Q&A GPT</div>
             <div class="status">Online</div>
           </div>
         </div>
@@ -212,9 +268,7 @@
             <textarea id="msg" placeholder="Type your message… (Enter to send, Shift+Enter for new line)"></textarea>
             <button id="send">Send</button>
           </div>
-          <div class="footerNote">
-            New chat = page refresh. (Session is not saved in localStorage.)
-          </div>
+          <div class="footerNote">New chat = refresh page.</div>
         </div>
       </div>
     </div>
@@ -224,7 +278,7 @@
       const msg = document.getElementById("msg");
       const sendBtn = document.getElementById("send");
 
-      // ✅ New session per page load, but memory is kept during the chat
+      // New session per page load (memory only for this tab)
       let currentSessionId = null;
 
       function nowTime() {
@@ -294,7 +348,6 @@
           typingEl.remove();
           sendBtn.disabled = false;
 
-          // If backend created a session, store it in memory (NOT localStorage)
           if (data?.sessionId) currentSessionId = data.sessionId;
 
           if (!resp.ok) {
@@ -302,7 +355,7 @@
             return;
           }
 
-          // Show ONLY the final assistant message (clean UI)
+          // Show only the last assistant message (clean UI)
           const replies = Array.isArray(data.replies) ? data.replies : [data.reply];
           const clean = replies.filter(Boolean);
 
@@ -317,7 +370,7 @@
 
       msg.addEventListener("input", () => {
         msg.style.height = "auto";
-        msg.style.height = Math.min(msg.scrollHeight, 120) + "px";
+        msg.style.height = Math.min(msg.scrollHeight, 140) + "px";
       });
 
       sendBtn.onclick = send;
@@ -328,7 +381,7 @@
         }
       });
 
-      addBubble("assistant", "नमस्कार! मैं रौशनी हूँ। शुरू करने के लिए अपना पूरा नाम बताइए।");
+      addBubble("assistant", "Hi! I’m Q&A GPT. Please tell me your full name to get started.");
     </script>
   </body>
 </html>
