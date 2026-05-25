@@ -28,8 +28,10 @@ export default async function handler(req, res) {
     const VAPI_PRIVATE_KEY = process.env.VAPI_PRIVATE_KEY;
     const VAPI_ASSISTANT_ID = process.env.VAPI_ASSISTANT_ID;
 
-    if (!VAPI_PRIVATE_KEY) return res.status(200).json({ reply: "Missing VAPI_PRIVATE_KEY env var" });
-    if (!VAPI_ASSISTANT_ID) return res.status(200).json({ reply: "Missing VAPI_ASSISTANT_ID env var" });
+    if (!VAPI_PRIVATE_KEY)
+      return res.status(200).json({ reply: "Missing VAPI_PRIVATE_KEY env var" });
+    if (!VAPI_ASSISTANT_ID)
+      return res.status(200).json({ reply: "Missing VAPI_ASSISTANT_ID env var" });
 
     // 1) Ensure session
     let activeSessionId =
@@ -49,10 +51,16 @@ export default async function handler(req, res) {
         }),
       });
 
-      const sessionData = await sessionResp.json().catch(() => null);
+      const sessionText = await sessionResp.text();
+      let sessionData = null;
+      try {
+        sessionData = JSON.parse(sessionText);
+      } catch {}
+
       if (!sessionResp.ok || !sessionData?.id) {
         return res.status(200).json({
           reply: `Session create failed. status=${sessionResp.status}`,
+          details: sessionText.slice(0, 800),
         });
       }
 
@@ -73,11 +81,24 @@ export default async function handler(req, res) {
       }),
     });
 
-    const data = await vapiResp.json().catch(() => null);
+    const rawText = await vapiResp.text();
+    let data = null;
+    try {
+      data = JSON.parse(rawText);
+    } catch {}
 
-    if (!vapiResp.ok || !data) {
+    if (!vapiResp.ok) {
       return res.status(200).json({
         reply: `Vapi request failed. status=${vapiResp.status}`,
+        details: rawText.slice(0, 800),
+        sessionId: activeSessionId,
+      });
+    }
+
+    if (!data) {
+      return res.status(200).json({
+        reply: "Vapi response was not JSON",
+        details: rawText.slice(0, 800),
         sessionId: activeSessionId,
       });
     }
@@ -85,11 +106,15 @@ export default async function handler(req, res) {
     // Collect ALL assistant messages
     const replies = Array.isArray(data.output)
       ? data.output
-          .filter((m) => m?.role === "assistant" && typeof m.content === "string" && m.content.trim())
+          .filter(
+            (m) =>
+              m?.role === "assistant" &&
+              typeof m.content === "string" &&
+              m.content.trim()
+          )
           .map((m) => m.content.trim())
       : [];
 
-    // Prefer showing ONLY the last assistant message (usually the question after tool calls)
     const finalReply = replies.length ? replies[replies.length - 1] : "";
 
     return res.status(200).json({
